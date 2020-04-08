@@ -26,6 +26,9 @@ public class FXMLController {
 
     @FXML
     private TextField txtInput;
+    
+    @FXML
+    private Button btnCercaCorretti;
 
     @FXML
     private Button btnCerca;
@@ -47,7 +50,7 @@ public class FXMLController {
 
     	String parola = txtInput.getText();
     	
-    	Set<Parola> anagrammi = model.getAnagrammi(parola);
+    	List<Parola> anagrammi = model.getAnagrammi(parola, false);
     	
     	for(Parola p : anagrammi) {
     		if(p.esiste())
@@ -58,6 +61,22 @@ public class FXMLController {
     }
 
     @FXML
+    void doCercaCorretti(ActionEvent event) {
+
+    	txtCorretti.clear();
+    	txtErrati.clear();
+
+    	String parola = txtInput.getText();
+    	
+    	List<Parola> anagrammi = model.getAnagrammi(parola, true);
+    	
+    	for(Parola p : anagrammi) {
+    		txtCorretti.appendText(p.toString()+"\n");
+    	}
+    	
+    }
+    
+    @FXML
     void doReset(ActionEvent event) {
     	
     	txtCorretti.clear();
@@ -67,6 +86,7 @@ public class FXMLController {
     @FXML
     void initialize() {
         assert txtInput != null : "fx:id=\"txtInput\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert btnCercaCorretti != null : "fx:id=\"btnCercaCorretti\" was not injected: check your FXML file 'Scene.fxml'.";
         assert btnCerca != null : "fx:id=\"btnCerca\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtCorretti != null : "fx:id=\"txtCorretti\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtErrati != null : "fx:id=\"txtErrati\" was not injected: check your FXML file 'Scene.fxml'.";

@@ -11,38 +11,88 @@ import java.util.Set;
 public class RicercaAnagrammi {
 
 	Model model;
-	private Set<Parola> soluzioni;
+	private List<Parola> soluzioni;
 	
-	public Set<Parola> getAnagrammi(String parola) {
-		
+	public List<Parola> getAnagrammi(String parola, boolean onlyCorrette) {
+
 		model = new Model();
-		this.soluzioni = new HashSet<Parola>();
+		this.soluzioni = new ArrayList<Parola>();
+		
+		List<Carattere>usati = new ArrayList<Carattere>();
 		
 		parola = parola.toLowerCase();
 		
-		List<Character> charRestanti = new LinkedList<Character>();
+		List<Carattere> charRestanti = new ArrayList<Carattere>();
 		for(int i=0; i<parola.length(); i++) {
-			charRestanti.add(parola.charAt(i));
+			charRestanti.add(new Carattere(parola.charAt(i)));
 		}
 		
-		this.cerca("", 0, charRestanti);
+		for(int i = 0; i<charRestanti.size(); i++) {
+			for(int j = i+1; j<charRestanti.size(); j++) {
+				if(charRestanti.get(i).getC()==charRestanti.get(j).getC()) {
+					charRestanti.get(j).aumentaOrdine();
+				}
+			}
+		}
+		
+		if(!onlyCorrette)
+			this.cerca("", 0, charRestanti, usati);
+		else
+			this.cercaOnlyCorrect("", 0, charRestanti, usati);
 		
 		return soluzioni;
 	}
 	
-	private void cerca(String parziale, int livello, List<Character> charRestanti) {
+	private void cerca(String parziale, int livello, List<Carattere> charRestanti, List<Carattere> usati) {
 		
 		if(charRestanti.size()==0) {
 			soluzioni.add(new Parola(parziale, model.isCorrect(parziale)));
 		}
 		
-		for(Character ch : charRestanti) {
-			String temp = parziale + ch;
-			List<Character> disponibili = new LinkedList<>(charRestanti);
-			disponibili.remove(ch);
-			
-			cerca(temp, livello+1, disponibili);
+		boolean maggiore = false;
+		
+		for(Carattere c1 : charRestanti) {
+			for(Carattere c2 : usati) {
+				if(c1.getC()==c2.getC() && c2.getOrdine()>c1.getOrdine()) {
+					maggiore = true;
+				}
+			}
+			if(!maggiore) {
+				String temp = parziale + c1.getC();
+				List<Carattere> disponibili = new ArrayList<>(charRestanti);
+				disponibili.remove(c1);
+				List<Carattere> utilizzati = new ArrayList<>(usati);
+				utilizzati.add(c1);
+				
+				cerca(temp, livello+1, disponibili, utilizzati);
+			}
 		}
 	}
 	
+	public void cercaOnlyCorrect(String parziale, int livello, List<Carattere> charRestanti, List<Carattere> usati) {
+		
+		if(charRestanti.size()==0 && model.isCorrect(parziale)) {
+			soluzioni.add(new Parola(parziale, true));
+		}
+
+		boolean maggiore = false;
+		
+		for(Carattere c1 : charRestanti) {
+			for(Carattere c2 : usati) {
+				if(c1.getC()==c2.getC() && c2.getOrdine()>c1.getOrdine()) {
+					maggiore = true;
+				}
+			}
+			if(!maggiore) {
+				String temp = parziale + c1.getC();
+				if(model.esisteCorrispondenza(temp)) {
+					List<Carattere> disponibili = new ArrayList<>(charRestanti);
+					disponibili.remove(c1);
+					List<Carattere> utilizzati = new ArrayList<>(usati);
+					utilizzati.add(c1);
+					cercaOnlyCorrect(temp, livello+1, disponibili, utilizzati);
+				}
+			}
+		}
+	}
 }

@@ -20,8 +20,12 @@ public class Model {
 		return diz.isCorrect(anagramma);
 	}
 
-	public Set<Parola> getAnagrammi(String parola) {
-		Set<Parola> anagrammi = ric.getAnagrammi(parola);
+	public List<Parola> getAnagrammi(String parola, boolean onlyCorrect) {
+		List<Parola> anagrammi = ric.getAnagrammi(parola, onlyCorrect);
 		return anagrammi;
+	}
+
+	public boolean esisteCorrispondenza(String parziale) {
+		return diz.esisteCorrispondenza(parziale);
 	}
 }
